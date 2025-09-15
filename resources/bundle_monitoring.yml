@@ -1,0 +1,28 @@
+resources:
+  jobs:
+    marvel-characters-monitor-update:
+      name: marvel-characters-monitor-update-workflow
+      schedule:
+        quartz_cron_expression: "0 0 6 ? * MON"
+        timezone_id: "Europe/Amsterdam"
+        pause_status: ${var.schedule_pause_status}
+      tags:
+        project_name: "marvel-characters"
+
+      environments:
+        - environment_key: monitor-env
+          spec:
+            client: "3"
+            dependencies:
+              - ../dist/*.whl
+
+      tasks:
+        - task_key: "refresh_monitor_table"
+          environment_key: monitor-env
+          spark_python_task:
+            python_file: "../scripts/refresh_monitor.py"
+            parameters:
+              - "--root_path"
+              - ${workspace.root_path}
+              - "--env"
+              - ${bundle.target}

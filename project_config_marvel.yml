@@ -1,0 +1,52 @@
+# 🔹 Environment-specific configurations
+# Define catalogs (Databricks Unity Catalog) and schemas for each environment (prd, acc, dev).
+# This allows you to separate production, acceptance/testing, and development data.
+prd:
+  catalog_name: mlops_prd
+  schema_name: marvel_characters
+acc:
+  catalog_name: mlops_acc
+  schema_name: marvel_characters
+dev:
+  catalog_name: mlops_dev
+  schema_name: marvel_characters
+
+# 🔹 MLflow experiment locations
+# Define where to log model runs in Databricks MLflow.
+# The "basic" experiment might be for simple baseline models,
+# while "custom" is for more advanced or tuned models.
+# In Databricks, /Shared/ is the workspace folder visible to all users.
+experiment_name_basic: /Shared/marvel-characters-basic
+experiment_name_custom: /Shared/marvel-characters-custom
+
+# 🔹 Model training hyperparameters
+# These parameters control how the model is trained.
+# You can tune them to optimize model performance.
+parameters:
+  learning_rate: 0.01
+  n_estimators: 1000
+  max_depth: 6
+
+# 🔹 Numerical features
+# Continuous variables that the model will treat as numeric inputs.
+num_features:
+- Height
+- Weight
+
+# 🔹 Categorical features
+# Discrete variables that represent categories/groups.
+# The model may need encoding (e.g., one-hot or embeddings).
+cat_features:
+- Universe
+- Identity
+- Gender
+- Marital_Status
+- Teams
+- Origin
+- Magic
+- Mutant
+
+# 🔹 Target variable
+# This is the column the model will predict.
+# In this case, whether the character is Alive or not.
+target: Alive

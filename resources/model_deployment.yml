@@ -1,0 +1,67 @@
+resources:
+  jobs:
+    deployment:
+      name: ${bundle.name}-workflow
+      schedule:
+        quartz_cron_expression: "0 0 6 ? * MON"
+        timezone_id: "Europe/Amsterdam"
+        pause_status: ${var.schedule_pause_status}
+      tags:
+        project_name: "marvel-characters"
+
+      environments:
+        - environment_key: default
+          spec:
+            client: "3"
+            dependencies:
+              - ../dist/*.whl
+
+      tasks:
+        - task_key: "preprocessing"
+          environment_key: default
+          spark_python_task:
+            python_file: "../scripts/process_data.py"
+            parameters:
+              - "--root_path"
+              - "${workspace.root_path}"
+              - "--env"
+              - "${bundle.target}"
+
+        - task_key: "train_model"
+          environment_key: default
+          depends_on:
+            - task_key: "preprocessing"
+          spark_python_task:
+            python_file: "../scripts/train_register_custom_model.py"
+            parameters:
+              - "--root_path"
+              - "${workspace.root_path}"
+              - "--env"
+              - "${bundle.target}"
+              - "--git_sha"
+              - "${var.git_sha}"
+              - "--job_run_id"
+              - "{{job.run_id}}"
+              - "--branch"
+              - "${var.branch}"
+
+        - task_key: model_updated
+          condition_task:
+            op: "EQUAL_TO"
+            left: "{{tasks.train_model.values.model_updated}}"
+            right: "1"
+          depends_on:
+            - task_key: "train_model"
+
+        - task_key: "deploy_model"
+          environment_key: default
+          depends_on:
+            - task_key: "model_updated"
+              outcome: "true"
+          spark_python_task:
+            python_file: "../scripts/deploy_model.py"
+            parameters:
+              - "--root_path"
+              - "${workspace.root_path}"
+              - "--env"
+              - "${bundle.target}"
