@@ -24,7 +24,7 @@ if not is_databricks():
 mlflow.get_tracking_uri()
 # COMMAND ----------
 experiment = mlflow.set_experiment(experiment_name="/Shared/marvel-demo")
-mlflow.set_experiment_tags({"repository_name": "marvelousmlops/marvel-characters"})
+mlflow.set_experiment_tags({"repository_name": "ShwaTech/End-To-End-MLOps-Pipeline-With-Databricks"})
 
 print(experiment)
 # COMMAND ----------
@@ -39,7 +39,7 @@ mlflow.get_experiment(experiment.experiment_id)
 # COMMAND ----------
 # search for experiment
 experiments = mlflow.search_experiments(
-    filter_string="tags.repository_name='marvelousmlops/marvel-characters'"
+    filter_string="tags.repository_name='ShwaTech/End-To-End-MLOps-Pipeline-With-Databricks'"
 )
 print(experiments)
 
@@ -103,13 +103,19 @@ mlflow.end_run()
 
 # COMMAND ----------
 # start another run and log other things
-mlflow.start_run(run_name="marvel-demo-run-extra",
-                 tags={"git_sha": "1234567890abcd"},
-                       description="marvel demo run with extra artifacts",)
+mlflow.start_run(
+    run_name="marvel-demo-run-extra",
+    tags={"git_sha": "1234567890abcd"},
+    description="marvel demo run with extra artifacts"
+)
+
 mlflow.log_metric(key="metric3", value=3.0)
+
 # dynamically log metric (trainings epochs)
-for i in range(0,3):
+for i in range(0, 3):
     mlflow.log_metric(key="metric1", value=3.0+i/2, step=i)
+# COMMAND ----------
+# log some additional artifacts
 mlflow.log_artifact("../demo_artifacts/mlflow_meme.jpeg")
 mlflow.log_text("hello, MLflow!", "hello.txt")
 mlflow.log_dict({"k": "v"}, "dict_example.json")
@@ -123,12 +129,11 @@ fig, ax = plt.subplots()
 ax.plot([0, 1], [2, 3])
 
 mlflow.log_figure(fig, "figure.png")
-
-# log image dynamically
 # COMMAND ----------
+# log image dynamically
 import numpy as np
 
-for i in range(0,3):
+for i in range(0, 3):
     image = np.random.randint(0, 256, size=(100, 100, 3), dtype=np.uint8)
     mlflow.log_image(image, key="demo_image", step=i)
 
@@ -155,24 +160,33 @@ runs
 # COMMAND ----------
 # load objects
 artifact_uri = runs.artifact_uri[0]
-mlflow.artifacts.load_dict(f"{artifact_uri}/dict_example.json")
-# nested runs
 
 # COMMAND ----------
+# Show dict_example form artifacts
+mlflow.artifacts.load_dict(f"{artifact_uri}/dict_example.json")
+
+# COMMAND ----------
+# Show figure form artifacts
 mlflow.artifacts.load_image(f"{artifact_uri}/figure.png")
+
 # COMMAND ----------
 # download artifacts
 mlflow.artifacts.download_artifacts(
     artifact_uri=f"{artifact_uri}/demo_artifacts",
-    dst_path="../downloaded_artifacts")
+    dst_path="../downloaded_artifacts"
+)
 
 # COMMAND ----------
 # nested runs: useful for hyperparameter tuning
 with mlflow.start_run(run_name="marvel_top_level_run") as run:
     for i in range(1,5):
         with mlflow.start_run(run_name=f"marvel_subrun_{str(i)}", nested=True) as subrun:
-            mlflow.log_metrics({"m1": 5.1+i,
-                                "m2": 2*i,
-                                "m3": 3+1.5*i})
+            mlflow.log_metrics(
+                {
+                    "m1": 5.1+i,
+                    "m2": 2*i,
+                    "m3": 3+1.5*i
+                }
+            )
 
 # COMMAND ----------
