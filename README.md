@@ -22,31 +22,38 @@ The goal is to provide a template that developers, ML engineers, and data scient
 
 ```bash
 ├── .github/
-│    └── workflows/                         # CI/CD workflows (GitHub Actions) 
-│        └── CI_CD.yaml                     # CI/CD YAML Files
-├── data/                                   # Raw or processed datasets  
-├── notebooks/                              # Exploratory data analysis & prototyping notebooks  
+│    └── workflows/                               # CI/CD workflows (GitHub Actions) 
+│        ├── ci.yaml                              # CI YAML Files
+│        └── cd.yaml                              # CD YAML Files
+├── data/                                         # Raw or processed datasets  
+│   └── marvel_characters_dataset.csv
+├── notebooks/                                    # Exploratory data analysis & prototyping notebooks  
 │   └── Databricks notebooks for exploration / prototyping
-├── resources/                              # Auxiliary resources  
+├── resources/                                    # Auxiliary resources  
 │   ├── bundle_monitoring.yml
 │   └── model_deployment.yml
-├── scripts/                                # Stand-alone scripts for discrete pipeline tasks  
+├── scripts/                                      # Stand-alone scripts for discrete pipeline tasks  
 │   └── stand-alone pipeline task scripts
 ├── src/
-│   └── marvel_characters/                  # Core package module
+│   └── marvel_characters/                        # Core package module
 │       ├── __init__.py
-│       ├── data_processing.py              # Data loading, cleaning, feature engineering
-│       ├── model_training.py               # Training logic, model definitions
-│       ├── utils.py                        # Utility functions
-│       └── …                               # Other modules (e.g. evaluation, inference)
-├── test/                                   # Unit / integration tests  
-├── .pre-commit-config.yaml                 # Pre-commit hooks (linting, formatting, etc.)  
-├── databricks.yml                          # Configuration for Databricks deployment / clusters  
-├── project_config_marvel.yml               # Project-specific settings  
-├── pyproject.toml                          # Project metadata & dependencies  
-├── uv.lock                                 # (auto-generated) locks dependency versions  
-├── version.txt                             # Project version  
-└── README.md                               # Project documentation (you’re reading it)  
+│       ├── data_processing.py                    # Data loading, cleaning, feature engineering
+│       ├── model_training.py                     # Training logic, model definitions
+│       ├── utils.py                              # Utility functions
+│       └── …                                     # Other modules (e.g. evaluation, inference)
+├── tests/                                        # Unit / integration tests  
+│   ├── marvel_characters/                        # Core package module
+│   │   ├── __init__.py
+│   │   └── test_data_processor.py                # Testing Data Preprocessor.
+│   ├── __init__.py
+│   └── conftest.py
+├── .pre-commit-config.yaml                       # Pre-commit hooks (linting, formatting, etc.)  
+├── databricks.yml                                # Configuration for Databricks deployment / clusters  
+├── project_config_marvel.yml                     # Project-specific settings  
+├── pyproject.toml                                # Project metadata & dependencies  
+├── uv.lock                                       # (auto-generated) locks dependency versions  
+├── version.txt                                   # Project version  
+└── README.md                                     # Project documentation (you’re reading it)  
 ```
 
 ## Clone The Repository

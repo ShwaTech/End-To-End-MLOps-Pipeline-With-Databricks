@@ -12,8 +12,8 @@ from marvel_characters.config import ProjectConfig
 
 
 class DataProcessor:
-    """A class for preprocessing and managing Marvel character DataFrame operations.
-
+    """
+    A class for preprocessing and managing Marvel character DataFrame operations.
     This class handles data preprocessing, splitting, and saving to Databricks tables.
     """
 
@@ -23,8 +23,8 @@ class DataProcessor:
         self.spark = spark
 
     def preprocess(self) -> None:
-        """Preprocess the Marvel character DataFrame stored in self.df.
-
+        """
+        Preprocess the Marvel character DataFrame stored in self.df.
         This method handles missing values, converts data types, and performs feature engineering.
         """
         cat_features = self.config.cat_features
@@ -101,7 +101,8 @@ class DataProcessor:
             self.df["Id"] = self.df["Id"].astype("str")
 
     def split_data(self, test_size: float = 0.2, random_state: int = 42) -> tuple[pd.DataFrame, pd.DataFrame]:
-        """Split the DataFrame (self.df) into training and test sets.
+        """
+        Split the DataFrame (self.df) into training and test sets.
 
         :param test_size: The proportion of the dataset to include in the test split.
         :param random_state: Controls the shuffling applied to the data before applying the split.
@@ -111,7 +112,8 @@ class DataProcessor:
         return train_set, test_set
 
     def save_to_catalog(self, train_set: pd.DataFrame, test_set: pd.DataFrame) -> None:
-        """Save the train and test sets into Databricks tables.
+        """
+        Save the train and test sets into Databricks tables.
 
         :param train_set: The training DataFrame to be saved.
         :param test_set: The test DataFrame to be saved.
@@ -133,7 +135,8 @@ class DataProcessor:
         )
 
     def enable_change_data_feed(self) -> None:
-        """Enable Change Data Feed for train and test set tables.
+        """
+        Enable Change Data Feed for train and test set tables.
 
         This method alters the tables to enable Change Data Feed functionality.
         """
@@ -149,16 +152,18 @@ class DataProcessor:
 
 
 def generate_synthetic_data(df: pd.DataFrame, drift: bool = False, num_rows: int = 500) -> pd.DataFrame:
-    """Generate synthetic Marvel character data matching input DataFrame distributions with optional drift.
-
+    """
+    Generate synthetic Marvel character data matching input DataFrame distributions with optional drift.
+    
     Creates artificial dataset replicating statistical patterns from source columns including numeric,
     categorical, and datetime types. Supports intentional data drift for specific features when enabled.
-
+    
     :param df: Source DataFrame containing original data distributions
     :param drift: Flag to activate synthetic data drift injection
     :param num_rows: Number of synthetic records to generate
     :return: DataFrame containing generated synthetic data
     """
+    
     synthetic_data = pd.DataFrame()
 
     for column in df.columns:
