@@ -18,7 +18,6 @@ from marvel_characters.config import ProjectConfig
 from marvel_characters.serving.model_serving import ModelServing
 from marvel_characters.utils import is_databricks
 
-
 # COMMAND ----------
 # spark session
 spark = SparkSession.builder.getOrCreate()
@@ -49,7 +48,6 @@ model_serving = ModelServing(
 # Deploy the model serving endpoint
 model_serving.deploy_or_update_serving_endpoint()
 
-
 # COMMAND ----------
 # Create a sample request body
 required_columns = [
@@ -62,8 +60,8 @@ required_columns = [
     "Teams",
     "Origin",
     "Magic",
-    "Mutant"]
-
+    "Mutant"
+]
 
 # Sample 1000 records from the training set
 test_set = spark.table(f"{config.catalog_name}.{config.schema_name}.test_set").toPandas()
@@ -82,16 +80,18 @@ dataframe_records = [[record] for record in sampled_records]
 """
 Each dataframe record in the request body should be list of json with columns looking like:
 
-[{'Height': 1.75,
-  'Weight': 70.0,
-  'Universe': 'Earth-616',
-  'Identity': 'Public',
-  'Gender': 'Male',
-  'Marital_Status': 'Single',
-  'Teams': 'Avengers',
-  'Origin': 'Human',
-  'Magic': 1,
-  'Mutant': 1}]
+[{
+    'Height': 1.75,
+    'Weight': 70.0,
+    'Universe': 'Earth-616',
+    'Identity': 'Public',
+    'Gender': 'Male',
+    'Marital_Status': 'Single',
+    'Teams': 'Avengers',
+    'Origin': 'Human',
+    'Magic': 1,
+    'Mutant': 1
+}]
 """
 
 def call_endpoint(record):
@@ -119,5 +119,4 @@ for i in range(len(dataframe_records)):
     status_code, response_text = call_endpoint(dataframe_records[i])
     print(f"Response Status: {status_code}")
     print(f"Response Text: {response_text}")
-    time.sleep(0.2) 
-# COMMAND ----------
+    time.sleep(0.2)
