@@ -15,7 +15,8 @@ from marvel_characters.config import ProjectConfig
 
 
 def create_or_refresh_monitoring(config: ProjectConfig, spark: SparkSession, workspace: WorkspaceClient) -> None:
-    """Create or refresh a monitoring table for Marvel character model serving data.
+    """
+    Create or refresh a monitoring table for Marvel character model serving data.
 
     This function processes the inference data from a Delta table,
     parses the request and response JSON fields, writes the resulting DataFrame to a Delta table for monitoring purposes.
@@ -142,7 +143,8 @@ def create_or_refresh_monitoring(config: ProjectConfig, spark: SparkSession, wor
 
 
 def create_monitoring_table(config: ProjectConfig, spark: SparkSession, workspace: WorkspaceClient) -> None:
-    """Create a new monitoring table for Marvel character model monitoring.
+    """
+    Create a new monitoring table for Marvel character model monitoring.
 
     This function sets up a monitoring table using the provided configuration,
     SparkSession, and workspace. It also enables Change Data Feed for the table.
@@ -151,7 +153,7 @@ def create_monitoring_table(config: ProjectConfig, spark: SparkSession, workspac
     :param spark: SparkSession object for executing SQL commands
     :param workspace: Workspace object for creating quality monitors
     """
-    logger.info("Creating new monitoring table..")
+    logger.info("👀 Creating new monitoring table..")
 
     monitoring_table = f"{config.catalog_name}.{config.schema_name}.model_monitoring"
 
@@ -171,4 +173,4 @@ def create_monitoring_table(config: ProjectConfig, spark: SparkSession, workspac
     # Important to update monitoring
     spark.sql(f"ALTER TABLE {monitoring_table} SET TBLPROPERTIES (delta.enableChangeDataFeed = true);")
 
-    logger.info("Lakehouse monitoring table is created.")
+    logger.info("✅ Lakehouse monitoring table is created.")

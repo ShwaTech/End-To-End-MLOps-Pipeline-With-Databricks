@@ -6,7 +6,7 @@
 # MAGIC ## Send Data to the Endpoint
 
 # COMMAND ----------
-
+# Imports
 from pyspark.sql.functions import col
 from pyspark.sql import SparkSession
 import os
@@ -17,12 +17,13 @@ from marvel_characters.utils import is_databricks
 
 spark = SparkSession.builder.getOrCreate()
 
+# COMMAND ----------
 # Load configuration
 config = ProjectConfig.from_yaml(config_path="../project_config_marvel.yml", env="dev")
 
-test_set = spark.table(f"{config.catalog_name}.{config.schema_name}.test_set") \
-                        .withColumn("Id", col("Id").cast("string")) \
-                        .toPandas()
+test_set = spark.table(
+    f"{config.catalog_name}.{config.schema_name}.test_set").withColumn("Id", col("Id").cast("string")
+).toPandas()
 
 # COMMAND ----------
 if is_databricks():
@@ -37,6 +38,7 @@ else:
     assert os.environ.get("DBR_TOKEN"), "DBR_TOKEN must be set in your environment or .env file."
     assert os.environ.get("DBR_HOST"), "DBR_HOST must be set in your environment or .env file."
     profile = os.environ["PROFILE"]
+
 # COMMAND ----------
 
 from databricks.sdk import WorkspaceClient
@@ -115,3 +117,5 @@ workspace = WorkspaceClient()
 config = ProjectConfig.from_yaml(config_path="../project_config_marvel.yml", env="dev")
 
 create_or_refresh_monitoring(config=config, spark=spark, workspace=workspace)
+
+# COMMAND ----------
