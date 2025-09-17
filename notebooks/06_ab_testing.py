@@ -103,23 +103,30 @@ X_train = train_set[config.num_features + config.cat_features + ["Id"]]
 X_test = test_set[config.num_features + config.cat_features + ["Id"]]
 
 # COMMAND ----------
+# Start MLflow run for A/B test model
 mlflow.set_experiment(experiment_name="/Shared/marvel-characters-ab-testing")
 model_name = f"{catalog_name}.{schema_name}.marvel_character_model_pyfunc_ab_test"
 wrapped_model = MarvelModelWrapper()
 
 with mlflow.start_run() as run:
     run_id = run.info.run_id
+    
     signature = infer_signature(model_input=X_train, model_output={"Prediction": 1, "model": "Model B"})
+    
     dataset = mlflow.data.from_spark(train_set_spark, table_name=f"{catalog_name}.{schema_name}.train_set", version="0")
+    
     mlflow.log_input(dataset, context="training")
+    
     mlflow.pyfunc.log_model(
         python_model=wrapped_model,
         artifact_path="pyfunc-marvel-character-model-ab",
         artifacts={
             "sklearn-pipeline-model-A": model_A_uri,
-            "sklearn-pipeline-model-B": model_B_uri},
+            "sklearn-pipeline-model-B": model_B_uri
+        },
         signature=signature
     )
+
 model_version = mlflow.register_model(
     model_uri=f"runs:/{run_id}/pyfunc-marvel-character-model-ab", name=model_name
 )
@@ -181,4 +188,3 @@ for i in range(len(dataframe_records)):
     print(f"Response Status: {status_code}")
     print(f"Response Text: {response_text}")
     time.sleep(0.2)
-# COMMAND ----------
