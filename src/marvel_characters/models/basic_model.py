@@ -1,4 +1,5 @@
-"""Basic model implementation for Marvel character classification.
+"""
+Basic model implementation for Marvel character classification.
 
 infer_signature (from mlflow.models) → Captures input-output schema for model tracking.
 
@@ -25,13 +26,15 @@ from marvel_characters.config import ProjectConfig, Tags
 
 
 class BasicModel:
-    """A basic model class for Marvel character survival prediction using LightGBM.
+    """
+    A basic model class for Marvel character survival prediction using LightGBM.
 
     This class handles data loading, feature preparation, model training, and MLflow logging.
     """
 
     def __init__(self, config: ProjectConfig, tags: Tags, spark: SparkSession) -> None:
-        """Initialize the model with project configuration.
+        """
+        Initialize the model with project configuration.
 
         :param config: Project configuration object
         :param tags: Tags object
@@ -57,6 +60,7 @@ class BasicModel:
         Splits data into features (X_train, X_test) and target (y_train, y_test).
         """
         logger.info("🔄 Loading data from Databricks tables...")
+        
         self.train_set_spark = self.spark.table(f"{self.catalog_name}.{self.schema_name}.train_set")
         self.train_set = self.train_set_spark.toPandas()
         self.test_set_spark = self.spark.table(f"{self.catalog_name}.{self.schema_name}.test_set")
@@ -66,16 +70,19 @@ class BasicModel:
         self.y_train = self.train_set[self.target]
         self.X_test = self.test_set[self.num_features + self.cat_features]
         self.y_test = self.test_set[self.target]
+        
         self.eval_data = self.test_set[self.num_features + self.cat_features + [self.target]]
 
         train_delta_table = DeltaTable.forName(self.spark, f"{self.catalog_name}.{self.schema_name}.train_set")
         self.train_data_version = str(train_delta_table.history().select("version").first()[0])
         test_delta_table = DeltaTable.forName(self.spark, f"{self.catalog_name}.{self.schema_name}.test_set")
         self.test_data_version = str(test_delta_table.history().select("version").first()[0])
+        
         logger.info("✅ Data successfully loaded.")
 
     def prepare_features(self) -> None:
-        """Encode categorical features and define a preprocessing pipeline.
+        """
+        Encode categorical features and define a preprocessing pipeline.
 
         Creates a ColumnTransformer for one-hot encoding categorical features while passing through numerical
         features. Constructs a pipeline combining preprocessing and LightGBM classification model.
@@ -83,7 +90,8 @@ class BasicModel:
         logger.info("🔄 Defining preprocessing pipeline...")
 
         class CatToIntTransformer(BaseEstimator, TransformerMixin):
-            """Transformer that encodes categorical columns as integer codes for LightGBM.
+            """
+            Transformer that encodes categorical columns as integer codes for LightGBM.
 
             Unknown categories at transform time are encoded as -1.
             """
@@ -135,24 +143,28 @@ class BasicModel:
             self.run_id = run.info.run_id
 
             signature = infer_signature(model_input=self.X_train, model_output=self.pipeline.predict(self.X_train))
+            
             train_dataset = mlflow.data.from_spark(
                 self.train_set_spark,
                 table_name=f"{self.catalog_name}.{self.schema_name}.train_set",
                 version=self.train_data_version,
             )
             mlflow.log_input(train_dataset, context="training")
+            
             test_dataset = mlflow.data.from_spark(
                 self.test_set_spark,
                 table_name=f"{self.catalog_name}.{self.schema_name}.test_set",
                 version=self.test_data_version,
             )
             mlflow.log_input(test_dataset, context="testing")
+            
             self.model_info = mlflow.sklearn.log_model(
                 sk_model=self.pipeline,
                 artifact_path="lightgbm-pipeline-model",
                 signature=signature,
                 input_example=self.X_test[0:1],
             )
+            
             eval_data = self.X_test.copy()
             eval_data[self.config.target] = self.y_test
 
@@ -166,7 +178,8 @@ class BasicModel:
             self.metrics = result.metrics
 
     def model_improved(self) -> bool:
-        """Evaluate the model performance on the test set.
+        """
+        Evaluate the model performance on the test set.
 
         Compares the current model with the latest registered model using F1-score.
         :return: True if the current model performs better, False otherwise.
@@ -193,13 +206,15 @@ class BasicModel:
     def register_model(self) -> None:
         """Register model in Unity Catalog."""
         logger.info("🔄 Registering the model in UC...")
+        
         registered_model = mlflow.register_model(
             model_uri=f"runs:/{self.run_id}/lightgbm-pipeline-model",
             name=self.model_name,
             tags=self.tags,
         )
+        
         logger.info(f"✅ Model registered as version {registered_model.version}.")
-
+        
         latest_version = registered_model.version
 
         client = MlflowClient()
